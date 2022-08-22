@@ -1,6 +1,11 @@
+import os
+import time
 
 import requests
 from bs4 import BeautifulSoup
+
+# from save_it import save_one_page
+import  save_it
 
 def get_list():
     page_list = []
@@ -24,11 +29,12 @@ def get_list():
         hrefs = soup.select(".detail_list li a")
 
         for href in hrefs:
-            link_list.append(href['href'])
+            link_list.append("http://www.bjcjl.net/xyxw/" + href['href'][2:])
         # %s, %d, %f
-        print("爬了[%s]%d个链接" % ( url , len(hrefs)) )
+        print("爬了[%s]%d个链接" % (url, len(hrefs)))
     print(link_list)
     return link_list
+
 
 # all_link_list = get_list()
 
@@ -36,33 +42,20 @@ def get_list():
 css selector
 ".detail .detail_tit h3"
 """
-page_link = "http://www.bjcjl.net/xyxw/202207/t20220719_80096.html"
-strhtml = requests.get(page_link)
-strhtml.encoding = 'utf-8'
-html_doc = strhtml.text
-# 创建一个BeautifulSoup解析对象
-soup = BeautifulSoup(html_doc, "html.parser")
-# 获取所有的链接
-title = soup.select(".detail .detail_tit h3")
-contents = soup.select(".nr .TRS_Editor div")
-print(type(contents))
 
-# 我要收集所有的内容
-content_list = []
 
-for content in contents:
-    content_list.append(content.text)
-    #print(content.text)
 
-# print(content_list)
-# print("-"*80)
-# file = open("test.txt","w")
-# for c in content_list:
-#     file.write(c.strip())
-# file.close()
-file = open("chenjinglun.txt","w")
-file.write(str(title))
-for text in content_list:
-    # print(text)
-    file.write(text)
-file.close()
+
+
+if __name__ == '__main__':
+    # 获得所有的链接列表
+    list = get_list()
+
+    # 循环每一个链接，去爬取链接对应的内容
+    for i, link in enumerate(list):
+        try:
+            print("要爬 %s %d/%d" % (link, i + 1, len(list)))
+            # 另存为文本文件和图片
+            print(save_it.save_one_page(link))
+        except Exception as e:
+            print("爬取[%s]出现问题：%s" % (link, str(e)))
